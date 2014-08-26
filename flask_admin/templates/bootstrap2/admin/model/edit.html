@@ -11,6 +11,10 @@
 {% endblock %}
 
 {% block body %}
+  <h2>
+  <!--  <small style="float:right"><a href="{{ url_for(admin_view.endpoint + '.' + admin_view._default_view) }}">&laquo;back</a></small>-->
+    Edit {{ admin_view.name }} 
+  </h2>
     {% call lib.form_tag(form) %}
         {{ lib.render_form_fields(form, form_opts=form_opts) }}
         {{ lib.render_form_buttons(return_url, extra()) }}
