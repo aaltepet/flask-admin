@@ -72,6 +72,9 @@
     </aside>
     <section id="main-content">
       <section class="wrapper site-min-height">
+        {% block pagetitle %}
+          <h3><i class="fa fa-angle-right"></i> {{ page_title|default(admin_view.name) }}</h3>
+        {% endblock %}
         {% block body %}{% endblock %}
       </section>
     </section>
