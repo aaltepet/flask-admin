@@ -1,28 +1,9 @@
 /* Global styles */
-body
-{
-    padding-top: 4px;
-}
 
 /* Form customizations */
-form.icon {
-    display: inline;
+.content-panel > .nav-tabs {
+  padding-left: 10px;
 }
-
-form.icon button {
-    border: none;
-    background: transparent;
-    text-decoration: none;
-    padding: 0;
-    line-height: normal;
-}
-
-a.icon, button span.glyphicon {
-    text-decoration: none;
-    margin-left: 10px;
-    color: #333;
-}
-
 /* Model search form */
 form.navbar-form {
     margin: 1px 0 0 0;
@@ -41,19 +22,20 @@ form.search-form div input {
     margin: 0;
 }
 
+
+
 /* Filters */
+#filter_form {
+  margin: 10px 10px 0;
+}
 table.filters {
     border-collapse: collapse;
     border-spacing: 4px;
 }
 
-table.filters:not(:empty) {
-    margin: 12px 0px 20px 0px;
-}
-
 table.filters tr td {
-    padding-right: 5px;
-    padding-bottom: 3px;
+    padding-right: 10px;
+    padding-bottom: 10px;
 }
 
 table.flters tr td:nth-child(2){
@@ -135,8 +117,8 @@ table.flters tr td:nth-child(2){
     margin-top: 5px;
 }
 
-td>span.glyphicon {
-    padding-left: 35%;
+input[type=checkbox].form-control {
+  width: auto;
 }
 
 /* Patch Select2 */
@@ -160,13 +142,6 @@ form .select2-choice {
 }
 
 /* link style */
-a.btn-cancel {
-    border-radius: 4px;
-    border-color: #a08c8c;
-    color: #333;
-    background-color: #f0b8b8;
-}
-
 a.btn-link {
     border-radius: 4px;
     border-color: #95bee2;

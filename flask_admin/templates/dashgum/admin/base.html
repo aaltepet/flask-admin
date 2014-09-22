@@ -25,9 +25,7 @@
       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-<!--        <link href="{{ admin_static.url(filename='bootstrap/bootstrap3/css/bootstrap.min.css') }}" rel="stylesheet">
-        <link href="{{ admin_static.url(filename='bootstrap/bootstrap3/css/bootstrap-theme.min.css') }}" rel="stylesheet">
-        <link href="{{ admin_static.url(filename='admin/css/bootstrap3/admin.css') }}" rel="stylesheet">-->
+    <link href="{{ admin_static.url(filename='admin/css/dashgum/admin.css') }}" rel="stylesheet">
     {% endblock %}
     {% block head %}
     {% endblock %}
@@ -75,7 +73,7 @@
     <section id="main-content">
       <section class="wrapper site-min-height">
         {% block pagetitle %}
-          <h3><i class="fa fa-angle-right"></i> {{ page_title|default(admin_view.name) }}</h3>
+          <h3><i class="fa fa-angle-right"></i> {{ page_title_pre|default('') }} {{ page_title|default(admin_view.name) }}</h3>
         {% endblock %}
         {% block body %}{% endblock %}
       </section>

@@ -89,7 +89,9 @@ class BooleanNotEqualFilter(FilterNotEqual, filters.BaseBooleanFilter):
 
 # Base SQLA filter field converter
 class FilterConverter(filters.BaseFilterConverter):
-    strings = (FilterEqual, FilterNotEqual, FilterLike, FilterNotLike)
+    #aaltepet: the order of the string filters was changed to the "most common"
+    #  was first, most common being "like"
+    strings = (FilterLike, FilterEqual, FilterNotEqual, FilterNotLike)
     numeric = (FilterEqual, FilterNotEqual, FilterGreater, FilterSmaller)
     bool = (BooleanEqualFilter, BooleanNotEqualFilter)
     enum = (FilterEqual, FilterNotEqual)

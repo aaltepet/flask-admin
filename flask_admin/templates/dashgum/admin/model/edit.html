@@ -1,5 +1,6 @@
 {% extends 'admin/master.html' %}
 {% import 'admin/lib.html' as lib with context %}
+{% set page_title_pre="Edit" %}
 
 {% macro extra() %}
   <input name="_continue_editing" type="submit" class="btn" value="{{ _gettext('Save and Continue') }}" />
@@ -11,10 +12,32 @@
 {% endblock %}
 
 {% block body %}
+  <div class="col-md-12 mt">
+  <div class="content-panel">
+
+  {% block navlinks %}
+  <ul class="nav nav-tabs">
+      <li>
+          <a href="{{ return_url }}">{{ _gettext('List') }}</a>
+      </li>
+      {% if admin_view.can_create %}
+      <li>
+          <a href="{{ url_for('.create_view', url=return_url) }}" title="{{ _gettext('Create new record') }}">{{ _gettext('Create') }}</a>
+      </li>
+      {% endif %}
+      <li class="active">
+          <a href="javascript:void(0)">{{ _gettext('Edit') }}</a>
+      </li>
+	</ul>
+  {% endblock %}
+
     {% call lib.form_tag(form) %}
         {{ lib.render_form_fields(form, form_opts=form_opts) }}
         {{ lib.render_form_buttons(return_url, extra()) }}
     {% endcall %}
+  
+  </div>
+  </div>
 {% endblock %}
 
 {% block tail %}

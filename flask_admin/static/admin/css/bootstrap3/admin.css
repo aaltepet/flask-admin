@@ -52,8 +52,8 @@ table.filters:not(:empty) {
 }
 
 table.filters tr td {
-    padding-right: 5px;
-    padding-bottom: 3px;
+    padding-right: 10px;
+    padding-bottom: 10px;
 }
 
 table.flters tr td:nth-child(2){
