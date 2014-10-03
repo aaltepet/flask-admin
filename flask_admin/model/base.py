@@ -1321,7 +1321,6 @@ class BaseModelView(BaseView, ActionsMixin):
             return redirect(return_url)
 
         form = self.edit_form(obj=model)
-
         if validate_form_on_submit(form):
             if self.update_model(form, model):
                 if '_continue_editing' in request.form:
@@ -1342,10 +1341,12 @@ class BaseModelView(BaseView, ActionsMixin):
                            form_opts=form_opts,
                            return_url=return_url)
 
-    @expose('/delete/', methods=('POST',))
+    @expose('/delete/', methods=('POST','GET'))
     def delete_view(self):
         """
             Delete model view. Only POST method is allowed.
+            aaltepet: added GET so dashgum buttons looks nicer.  Really,
+                      I don't see why delete is restricted to POST.
         """
         return_url = get_redirect_target() or url_for('.index_view')
 
