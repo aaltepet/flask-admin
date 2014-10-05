@@ -1,5 +1,22 @@
 {% import 'admin/static.html' as admin_static with context %}
 
+{% macro show_errors(form, caller=None) %}
+  {% if form.errors|length > 0 %}
+    <div class="alert alert-warning">
+    There were errors submitting this form:
+    <ul>
+      {% for field_name, errors in form.errors.items() %}
+      <li>
+        <b>{{ form[field_name].label.text }}:</b>
+        {{ errors|join(', ') }}
+      </li>
+      {% endfor %}
+    </ul>
+    </div>
+  {% endif %}
+{% endmacro %}
+
+
 {# ---------------------- Pager -------------------------- #}
 {% macro pager(page, pages, generator) -%}
 {% if pages > 1 %}

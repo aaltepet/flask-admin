@@ -31,11 +31,14 @@
 	</ul>
   {% endblock %}
 
-    {% call lib.form_tag(form) %}
+    <div class="panel-body">
+      {% call lib.show_errors(form) %}{% endcall %}
+
+      {% call lib.form_tag(form) %}
         {{ lib.render_form_fields(form, form_opts=form_opts) }}
         {{ lib.render_form_buttons(return_url, extra()) }}
-    {% endcall %}
-  
+      {% endcall %}
+    </div>
   </div>
   </div>
 {% endblock %}
