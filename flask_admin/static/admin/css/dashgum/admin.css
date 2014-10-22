@@ -175,7 +175,7 @@ ul.has-error {
 }
 
 .list-checkbox-column {
-    width: 14px;
+    width: 14px;b
 }
 
 .form-horizontal .form-group {
@@ -185,4 +185,10 @@ ul.has-error {
 }
 .form-horizontal .form-group:hover {
   background-color: #ccc;
+}
+
+
+.iab-logout {
+  margin-top: 15px;
+  margin-right: 15px;
 }

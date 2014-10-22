@@ -27,15 +27,6 @@ a, a:hover, a:focus {
     text-decoration: none;
     outline: none;
 }
-::selection {
-
-    background: #68dff0;
-    color: #fff;
-}
-::-moz-selection {
-    background: #68dff0;
-    color: #fff;
-}
 
 #container {
     width: 100%;
@@ -43,9 +34,9 @@ a, a:hover, a:focus {
 }
 
 /* Bootstrap Modifications */
-.modal-header {
+/*.modal-header {
 	background: #68dff0;
-}
+}*/
 
 .modal-title {
 	color: white;
@@ -364,7 +355,8 @@ ul.sidebar-menu li a{
 }
 
 ul.sidebar-menu li a.active, ul.sidebar-menu li a:hover, ul.sidebar-menu li a:focus {
-    background: #68dff0;
+/*    background: #68dff0;*/
+    background: #6babba;
     color: #fff;
     display: block;
 
@@ -413,7 +405,7 @@ ul.sidebar-menu li a.active i {
 }
 
 .black-bg {
-    background: #ffd777;
+    background: #9ea5aa;
     border-bottom: 1px solid #c9aa5f;
 }
 
@@ -2216,7 +2208,7 @@ label {
 
 /*footer*/
 .site-footer {
-    background: #68dff0;
+    background: #9ea5aa;
     color: #fff;
     padding: 10px 0;
 }
