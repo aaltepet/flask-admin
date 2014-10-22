@@ -177,3 +177,12 @@ ul.has-error {
 .list-checkbox-column {
     width: 14px;
 }
+
+.form-horizontal .form-group {
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 10px;
+}
+.form-horizontal .form-group:hover {
+  background-color: #ccc;
+}
