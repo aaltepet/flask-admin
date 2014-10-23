@@ -184,9 +184,8 @@ ul.has-error {
   margin-bottom: 10px;
 }
 .form-horizontal .form-group:hover {
-  background-color: #ccc;
+  background-color: #f8f8ed;
 }
-
 
 .iab-logout {
   margin-top: 15px;
