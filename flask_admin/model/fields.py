@@ -1,10 +1,36 @@
 import itertools
+from dateutil.tz import tzlocal, tzfile
 
 from wtforms.validators import ValidationError
-from wtforms.fields import FieldList, FormField, SelectFieldBase
+from wtforms.fields import FieldList, FormField, SelectFieldBase, DateTimeField
 
 from flask.ext.admin._compat import iteritems
 from .widgets import InlineFieldListWidget, InlineFormWidget, AjaxSelect2Widget
+
+
+class LocalizingDateTimeField(DateTimeField):
+    """
+    DateTimeField that localizes offset-aware datetimes to the local timezone
+    from /etc/localtime.
+    Naive timezones are not adjusted.
+    """
+    
+    try:
+        TZ = tzfile('/etc/localtime')
+    except:
+        TZ = tzlocal()
+
+    def _value(self):
+        if self.raw_data:
+            return ' '.join(self.raw_data)
+        else:
+            if not self.data:
+                return ''
+            else:
+                date = self.data
+                if date.tzinfo:
+                    date = self.data.astimezone(self.TZ)
+                return date.strftime(self.format)
 
 
 class InlineFieldList(FieldList):
