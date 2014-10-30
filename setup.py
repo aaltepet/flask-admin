@@ -48,6 +48,7 @@ setup(
         'wtforms<2.0'
     ],
     tests_require=[
+        'python-dateutil',
         'nose>=1.0',
         'pillow',
         'mongoengine',
