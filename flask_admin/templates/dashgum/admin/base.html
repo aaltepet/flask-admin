@@ -74,6 +74,9 @@
       <section class="wrapper site-min-height">
         {% block pagetitle %}
           <h3><i class="fa fa-angle-right"></i> {{ page_title_pre|default('') }} {{ page_title|default(admin_view.name) }}</h3>
+          {% if page_subtitle|default('') %}
+            <p>{{page_subtitle}}</p>
+          {% endif %}
         {% endblock %}
         {% block body %}{% endblock %}
       </section>
