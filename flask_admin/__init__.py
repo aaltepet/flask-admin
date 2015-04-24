@@ -1,4 +1,4 @@
-__version__ = '1.0.8.inv1'
+__version__ = '1.1.0.inv1'
 __author__ = 'Serge S. Koval'
 __email__ = 'serge.koval+github@gmail.com'
 

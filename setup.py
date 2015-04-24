@@ -45,7 +45,7 @@ setup(
     platforms='any',
     install_requires=[
         'Flask>=0.7',
-        'wtforms<2.0'
+        'wtforms'
     ],
     tests_require=[
         'python-dateutil',
@@ -56,7 +56,11 @@ setup(
         'wtf-peewee',
         'sqlalchemy',
         'flask-mongoengine',
-        'flask-sqlalchemy'
+        'flask-sqlalchemy',
+        'flask-babelex',
+        'shapely',
+        'geoalchemy2',
+        'psycopg2',
     ],
     classifiers=[
         'Development Status :: 4 - Beta',

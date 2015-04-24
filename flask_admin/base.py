@@ -2,7 +2,7 @@ import os.path as op
 
 from functools import wraps
 
-from flask import Blueprint, render_template, abort, g
+from flask import Blueprint, current_app, render_template, abort, g, url_for
 from flask.ext.admin import babel
 from flask.ext.admin._compat import with_metaclass
 from flask.ext.admin import helpers as h
@@ -65,7 +65,7 @@ def _wrap_view(f):
         if abort is not None:
             return abort
 
-        return f(self, *args, **kwargs)
+        return self._run_view(f, *args, **kwargs)
 
     inner._wrapped = True
 
@@ -111,10 +111,15 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
 
         Derive from this class to implement your administrative interface piece. For example::
 
+            from flask.ext.admin import BaseView, expose
             class MyView(BaseView):
                 @expose('/')
                 def index(self):
                     return 'Hello World!'
+
+        Icons can be added to the menu by using `menu_icon_type` and `menu_icon_value`. For example::
+
+            admin.add_view(MyView(name='My View', menu_icon_type='glyph', menu_icon_value='glyphicon-home'))
     """
     @property
     def _template_args(self):
@@ -228,10 +233,16 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
             if not self.url.startswith('/'):
                 self.url = '%s/%s' % (self.admin.url, self.url)
 
+        
         # If we're working from the root of the site, set prefix to None
         if self.url == '/':
             self.url = None
-
+            # prevent admin static files from conflicting with flask static files
+            if not self.static_url_path:
+                self.static_folder='static'
+                self.static_url_path='/static/admin'
+            
+            
         # If name is not povided, use capitalized endpoint name
         if self.name is None:
             self.name = self._prettify_class_name(self.__class__.__name__)
@@ -270,6 +281,12 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
         kwargs['_gettext'] = babel.gettext
         kwargs['_ngettext'] = babel.ngettext
         kwargs['h'] = h
+
+        # Expose get_url helper
+        kwargs['get_url'] = self.get_url
+
+        # Expose config info
+        kwargs['config'] = current_app.config
 
         # Contribute extra arguments
         kwargs.update(self._template_args)
@@ -322,6 +339,20 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
         if not self.is_accessible():
             return self.inaccessible_callback(name, **kwargs)
 
+    def _run_view(self, fn, *args, **kwargs):
+        """
+            This method will run actual view function.
+
+            While it is similar to _handle_view, can be used to change
+            arguments that are passed to the view.
+
+            :param fn:
+                View function
+            :param kwargs:
+                Arguments
+        """
+        return fn(self, *args, **kwargs)
+
     def inaccessible_callback(self, name, **kwargs):
         """
             Handle the response to inaccessible views.
@@ -331,6 +362,18 @@ class BaseView(with_metaclass(AdminViewMeta, BaseViewClass)):
         """
         return abort(403)
 
+    def get_url(self, endpoint, **kwargs):
+        """
+            Generate URL for the endpoint. If you want to customize URL generation
+            logic (persist some query string argument, for example), this is
+            right place to do it.
+
+            :param endpoint:
+                Flask endpoint name
+            :param kwargs:
+                Arguments for `url_for`
+        """
+        return url_for(endpoint, **kwargs)
 
     @property
     def _debug(self):
@@ -350,9 +393,21 @@ class AdminIndexView(BaseView):
                 @expose('/')
                 def index(self):
                     arg1 = 'Hello'
-                    return render_template('adminhome.html', arg1=arg1)
+                    return self.render('admin/myhome.html', arg1=arg1)
 
             admin = Admin(index_view=MyHomeView())
+            
+            
+        Also, you can change the root url from /admin to / with the following::
+
+            admin = Admin(
+                app,
+                index_view=AdminIndexView(
+                    name='Home',
+                    template='admin/myhome.html',
+                    url='/'
+                )
+            )
 
         Default values for the index page are:
 
@@ -364,12 +419,18 @@ class AdminIndexView(BaseView):
     """
     def __init__(self, name=None, category=None,
                  endpoint=None, url=None,
-                 template='admin/index.html'):
+                 template='admin/index.html',
+                 menu_class_name=None,
+                 menu_icon_type=None,
+                 menu_icon_value=None):
         super(AdminIndexView, self).__init__(name or babel.lazy_gettext('Home'),
                                              category,
                                              endpoint or 'admin',
                                              url or '/admin',
-                                             'static')
+                                             'static',
+                                             menu_class_name=menu_class_name,
+                                             menu_icon_type=menu_icon_type,
+                                             menu_icon_value=menu_icon_value)
         self._template = template
 
     @expose()

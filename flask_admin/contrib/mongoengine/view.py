@@ -5,6 +5,8 @@ from flask import request, flash, abort, Response
 from flask.ext.admin import expose
 from flask.ext.admin.babel import gettext, ngettext, lazy_gettext
 from flask.ext.admin.model import BaseModelView
+from flask.ext.admin.model.form import wrap_fields_in_fieldlist
+from flask.ext.admin.model.fields import ListEditableFieldList
 from flask.ext.admin._compat import iteritems, string_types
 
 import mongoengine
@@ -20,7 +22,6 @@ from .tools import parse_like_term
 from .helpers import format_error
 from .ajax import process_ajax_references, create_ajax_loader
 from .subdoc import convert_subdocuments
-
 
 # Set up logger
 log = logging.getLogger("flask-admin.mongo")
@@ -199,7 +200,7 @@ class ModelView(BaseModelView):
     """
 
     def __init__(self, model, name=None,
-                 category=None, endpoint=None, url=None,
+                 category=None, endpoint=None, url=None, static_folder=None,
                  menu_class_name=None, menu_icon_type=None, menu_icon_value=None):
         """
             Constructor
@@ -228,7 +229,7 @@ class ModelView(BaseModelView):
         """
         self._search_fields = []
 
-        super(ModelView, self).__init__(model, name, category, endpoint, url,
+        super(ModelView, self).__init__(model, name, category, endpoint, url, static_folder,
                                         menu_class_name=menu_class_name,
                                         menu_icon_type=menu_icon_type,
                                         menu_icon_value=menu_icon_value)
@@ -398,6 +399,28 @@ class ModelView(BaseModelView):
 
         return form_class
 
+    def scaffold_list_form(self, custom_fieldlist=ListEditableFieldList,
+                           validators=None):
+        """
+            Create form for the `index_view` using only the columns from
+            `self.column_editable_list`.
+
+            :param validators:
+                `form_args` dict with only validators
+                {'name': {'validators': [required()]}}
+            :param custom_fieldlist:
+                A WTForm FieldList class. By default, `ListEditableFieldList`.
+        """
+        form_class = get_form(self.model,
+                              self.model_form_converter(self),
+                              base_class=self.form_base_class,
+                              only=self.column_editable_list,
+                              field_args=validators)
+
+        return wrap_fields_in_fieldlist(self.form_base_class,
+                                        form_class,
+                                        custom_fieldlist)
+
     # AJAX foreignkey support
     def _create_ajax_loader(self, name, opts):
         return create_ajax_loader(self.model, name, name, opts)
@@ -408,6 +431,26 @@ class ModelView(BaseModelView):
         objects for the current model.
         """
         return self.model.objects
+
+    def _search(self, query, search_term):
+        # TODO: Unfortunately, MongoEngine contains bug which
+        # prevents running complex Q queries and, as a result,
+        # Flask-Admin does not support per-word searching like
+        # in other backends
+        op, term = parse_like_term(search_term)
+
+        criteria = None
+
+        for field in self._search_fields:
+            flt = {'%s__%s' % (field.name, op): term}
+            q = mongoengine.Q(**flt)
+
+            if criteria is None:
+                criteria = q
+            else:
+                criteria |= q
+
+        return query.filter(criteria)
 
     def get_list(self, page, sort_column, sort_desc, search, filters,
                  execute=True):
@@ -431,30 +474,13 @@ class ModelView(BaseModelView):
 
         # Filters
         if self._filters:
-            for flt, value in filters:
+            for flt, flt_name, value in filters:
                 f = self._filters[flt]
-                query = f.apply(query, value)
+                query = f.apply(query, f.clean(value))
 
         # Search
         if self._search_supported and search:
-            # TODO: Unfortunately, MongoEngine contains bug which
-            # prevents running complex Q queries and, as a result,
-            # Flask-Admin does not support per-word searching like
-            # in other backends
-            op, term = parse_like_term(search)
-
-            criteria = None
-
-            for field in self._search_fields:
-                flt = {'%s__%s' % (field.name, op): term}
-                q = mongoengine.Q(**flt)
-
-                if criteria is None:
-                    criteria = q
-                else:
-                    criteria |= q
-
-            query = query.filter(criteria)
+            query = self._search(query, search)
 
         # Get count
         count = query.count()
@@ -508,10 +534,10 @@ class ModelView(BaseModelView):
             model.save()
         except Exception as ex:
             if not self.handle_view_exception(ex):
-                flash(gettext('Failed to create model. %(error)s',
+                flash(gettext('Failed to create record. %(error)s',
                               error=format_error(ex)),
                       'error')
-                log.exception('Failed to create model')
+                log.exception('Failed to create record.')
 
             return False
         else:
@@ -534,10 +560,10 @@ class ModelView(BaseModelView):
             model.save()
         except Exception as ex:
             if not self.handle_view_exception(ex):
-                flash(gettext('Failed to update model. %(error)s',
+                flash(gettext('Failed to update record. %(error)s',
                               error=format_error(ex)),
                       'error')
-                log.exception('Failed to update model')
+                log.exception('Failed to update record.')
 
             return False
         else:
@@ -558,10 +584,10 @@ class ModelView(BaseModelView):
             return True
         except Exception as ex:
             if not self.handle_view_exception(ex):
-                flash(gettext('Failed to delete model. %(error)s',
+                flash(gettext('Failed to delete record. %(error)s',
                               error=format_error(ex)),
                       'error')
-                log.exception('Failed to delete model')
+                log.exception('Failed to delete record.')
 
             return False
 
@@ -597,7 +623,7 @@ class ModelView(BaseModelView):
 
     @action('delete',
             lazy_gettext('Delete'),
-            lazy_gettext('Are you sure you want to delete selected models?'))
+            lazy_gettext('Are you sure you want to delete selected records?'))
     def action_delete(self, ids):
         try:
             count = 0
@@ -606,11 +632,11 @@ class ModelView(BaseModelView):
             for obj in self.get_query().in_bulk(all_ids).values():
                 count += self.delete_model(obj)
 
-            flash(ngettext('Model was successfully deleted.',
-                           '%(count)s models were successfully deleted.',
+            flash(ngettext('Record was successfully deleted.',
+                           '%(count)s records were successfully deleted.',
                            count,
                            count=count))
         except Exception as ex:
             if not self.handle_view_exception(ex):
-                flash(gettext('Failed to delete models. %(error)s', error=str(ex)),
+                flash(gettext('Failed to delete records. %(error)s', error=str(ex)),
                       'error')

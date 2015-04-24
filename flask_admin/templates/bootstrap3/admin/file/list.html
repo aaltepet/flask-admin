@@ -32,12 +32,12 @@
                 </th>
                 {% endif %}
                 <th class="col-md-1">&nbsp;</th>
-                <th>Name</th>
-                <th>Size</th>
+                <th>{{ _gettext('Name') }}</th>
+                <th>{{ _gettext('Size') }}</th>
                 {% endblock %}
             </tr>
         </thead>
-        {% for name, path, is_dir, size in items %}
+        {% for name, path, is_dir, size, date in items %}
         <tr>
             {% block list_row scoped %}
             {% if actions %}
@@ -58,15 +58,17 @@
                     {% if is_dir %}
                         {% if name != '..' and admin_view.can_delete_dirs %}
                         <form class="icon" method="POST" action="{{ get_url('.delete') }}">
-                            <input type="hidden" name="path" value="{{ path }}"></input>
+                            {{ delete_form.path(value=path) }}
+                            {{ delete_form.csrf_token }}
                             <button onclick="return confirm('{{ _gettext('Are you sure you want to delete \\\'%(name)s\\\' recursively?', name=name) }}')">
-                                <i class="icon-remove"></i>
+                                <i class="glyphicon glyphicon-remove"></i>
                             </button>
                         </form>
                         {% endif %}
                     {% else %}
                     <form class="icon" method="POST" action="{{ get_url('.delete') }}">
-                        <input type="hidden" name="path" value="{{ path }}"></input>
+                        {{ delete_form.path(value=path) }}
+                        {{ delete_form.csrf_token }}
                         <button onclick="return confirm('{{ _gettext('Are you sure you want to delete \\\'%(name)s\\\'?', name=name) }}')">
                             <i class="glyphicon glyphicon-trash"></i>
                         </button>

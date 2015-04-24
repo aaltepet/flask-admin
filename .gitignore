@@ -22,3 +22,6 @@ examples/forms/files
 .DS_Store
 .idea/
 *.sqlite
+env
+*.egg
+.eggs
